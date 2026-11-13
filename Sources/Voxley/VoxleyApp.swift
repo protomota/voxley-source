@@ -1,6 +1,9 @@
 import AppKit
 import SwiftUI
 
+private let supportURL = URL(string: "https://protomota.com/support?app=voxley")!
+private let feedbackURL = URL(string: "https://protomota.com/apps?app=voxley#feedback")!
+
 @main
 @MainActor
 struct VoxleyApp: App {
@@ -13,8 +16,8 @@ struct VoxleyApp: App {
         }
 
         Settings {
-            VoxleySettings(controller: delegate.controller, openOnboarding: delegate.openOnboarding,
-                           openAbout: delegate.openAbout)
+            VoxleySettings(controller: delegate.controller, launchAtLogin: delegate.launchAtLogin,
+                           openOnboarding: delegate.openOnboarding, openAbout: delegate.openAbout)
         }
         .commands {
             CommandGroup(replacing: .appInfo) {
@@ -22,6 +25,10 @@ struct VoxleyApp: App {
             }
             CommandGroup(after: .appInfo) {
                 Button("Voxley Onboarding…", action: delegate.openOnboarding)
+            }
+            CommandGroup(after: .help) {
+                Button("Get App Help") { NSWorkspace.shared.open(supportURL) }
+                Button("Send Feedback…") { NSWorkspace.shared.open(feedbackURL) }
             }
         }
     }
@@ -35,11 +42,13 @@ struct VoxleyApp: App {
 @MainActor
 final class VoxleyDelegate: NSObject, NSApplicationDelegate {
     let controller = DictationController()
+    let launchAtLogin = LaunchAtLogin()
     private let recorder = RecorderPanel()
     private let setup = SetupWindow()
     private let about = AboutWindow()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        launchAtLogin.configureDefault()
         controller.activate()
         recorder.connect(controller)
         #if VOXLEY_SPARKLE
@@ -52,6 +61,7 @@ final class VoxleyDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationDidBecomeActive(_ notification: Notification) {
+        launchAtLogin.refresh()
         controller.refreshPermissions()
     }
 
@@ -106,6 +116,8 @@ private struct MenuCommands: View {
             .disabled(!VoxleyUpdates.shared.canCheck || controller.phase != .idle)
         #endif
         Button("About Voxley", action: openAbout)
+        Button("Get App Help") { NSWorkspace.shared.open(supportURL) }
+        Button("Send Feedback…") { NSWorkspace.shared.open(feedbackURL) }
         Button("Quit Voxley") { NSApp.terminate(nil) }
             .keyboardShortcut("q")
     }

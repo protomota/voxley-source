@@ -5,6 +5,7 @@ import UniformTypeIdentifiers
 
 struct VoxleySettings: View {
     @Bindable var controller: DictationController
+    let launchAtLogin: LaunchAtLogin
     let openOnboarding: () -> Void
     let openAbout: () -> Void
     @State private var ruleApp = ""
@@ -27,7 +28,10 @@ struct VoxleySettings: View {
             }
         }
         .frame(width: 590, height: 450)
-        .onAppear { controller.refreshPermissions() }
+        .onAppear {
+            launchAtLogin.refresh()
+            controller.refreshPermissions()
+        }
     }
 
     private var modes: some View {
@@ -118,6 +122,20 @@ struct VoxleySettings: View {
 
     private var settings: some View {
         Form {
+            SwiftUI.Section("Startup") {
+                Toggle("Launch at Login", isOn: Binding(
+                    get: { launchAtLogin.isRegistered },
+                    set: launchAtLogin.setEnabled
+                ))
+                if launchAtLogin.status == .requiresApproval {
+                    Text("Allow Voxley in Login Items to open it automatically when you sign in.")
+                        .foregroundStyle(.secondary)
+                    Button("Open Login Items…", action: launchAtLogin.openSystemSettings)
+                }
+                if let message = launchAtLogin.errorMessage {
+                    Text(message).foregroundStyle(.secondary)
+                }
+            }
             SwiftUI.Section("Dictation") {
                 ShortcutRecorder(controller: controller)
                 Button("Voxley Onboarding…", action: openOnboarding)

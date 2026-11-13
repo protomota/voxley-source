@@ -15,16 +15,16 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0.7</string>
+	<string>1.0.9</string>
 	<key>CFBundleVersion</key>
-	<string>24</string>
+	<string>26</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>26.0</string>
 	<key>LSUIElement</key>
 	<true/>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Voxley uses your microphone to transcribe what you say on this Mac.</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>© 2026 Protomota, LLC</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Voxley uses your microphone to transcribe what you say on this Mac.</string>
 </dict>
 </plist>
